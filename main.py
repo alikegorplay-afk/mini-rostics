@@ -1,5 +1,6 @@
 import asyncio
 import uvicorn
+import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from src.bot.bot import main as bot_main
 from src.core.models import Base
@@ -12,7 +13,13 @@ async def run_fastapi(app):
     await server.serve()
 
 async def main():
-    engine = create_async_engine('sqlite+aiosqlite:///db.db')
+    # Создаем папку data если её нет
+    os.makedirs('data', exist_ok=True)
+    
+    # Используем путь в папке data
+    db_path = 'data/db.db'
+    
+    engine = create_async_engine(f'sqlite+aiosqlite:///{db_path}')
     
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
